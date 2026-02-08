@@ -16,9 +16,8 @@ body{
 
 .app{
   width:100vw;
-  height:100vh;
+  min-height:100vh;
   position:relative;
-  overflow:hidden;
 }
 
 /* HEADER */
@@ -34,6 +33,10 @@ body{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
   gap:24px;
+  transition:.4s;
+
+  /* FIX */
+  min-height: calc(100vh - 120px);
 }
 
 .card{
@@ -191,14 +194,29 @@ let currentId = null;
 
 /* ===== LOAD GRID ===== */
 async function renderGrid() {
-  console.log("renderGrid called");
   grid.innerHTML = "";
 
+  // Luôn render nút +
   const add = document.createElement("div");
   add.className = "card add";
   add.innerText = "+";
   add.onclick = createCard;
   grid.appendChild(add);
+
+  // Sau đó mới load Firestore
+  try {
+    const snap = await getDocs(collection(db, "diary"));
+
+    snap.forEach(docSnap => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerText = docSnap.data().title || "No title";
+      card.onclick = () => openDetail(docSnap.id);
+      grid.insertBefore(card, add);
+    });
+  } catch (e) {
+    console.error("Firestore error:", e);
+  }
 }
 
 /* ===== IMAGES ===== */
