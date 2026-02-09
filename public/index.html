@@ -192,32 +192,54 @@ const backBtn = document.querySelector(".back");
 
 let currentId = null;
 
-/* ===== LOAD GRID ===== */
-async function renderGrid() {
-  grid.innerHTML = "";
+async function createCard(){
+  const docRef=await addDoc(collection(db,"diary"),{
+    title:"New Note",
+    note:"",
+    images:[],
+    createdAt:serverTimestamp()
+  });
 
-  // Luôn render nút +
-  const add = document.createElement("div");
-  add.className = "card add";
-  add.innerText = "+";
-  add.onclick = createCard;
-  grid.appendChild(add);
-
-  // Sau đó mới load Firestore
-  try {
-    const snap = await getDocs(collection(db, "diary"));
-
-    snap.forEach(docSnap => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerText = docSnap.data().title || "No title";
-      card.onclick = () => openDetail(docSnap.id);
-      grid.insertBefore(card, add);
-    });
-  } catch (e) {
-    console.error("Firestore error:", e);
-  }
+  renderGrid();
+  openDetail(docRef.id);
 }
+
+
+/* ===== LOAD GRID ===== */
+async function renderGrid(){
+  grid.innerHTML="";
+
+  const snap = await getDocs(collection(db,"diary"));
+
+  snap.forEach(docSnap=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.textContent=docSnap.data().title || "No title";
+    card.onclick=()=>openDetail(docSnap.id);
+    grid.appendChild(card);
+  });
+
+  const add=document.createElement("div");
+  add.className="card add";
+  add.textContent="+";
+  add.onclick=createCard;
+  grid.appendChild(add);
+}
+
+async function openDetail(id){
+  currentId=id;
+
+  const snap=await getDoc(doc(db,"diary",id));
+  const data=snap.data();
+
+  titleInput.value=data.title || "";
+  noteInput.value=data.note || "";
+  renderImages(data.images || []);
+
+  grid.style.opacity=0;      // ⭐ QUAN TRỌNG
+  detail.classList.add("active");
+}
+
 
 /* ===== IMAGES ===== */
 function renderImages(list){
@@ -230,8 +252,20 @@ function renderImages(list){
 }
 
 /* ===== UPDATE ===== */
-titleInput.oninput=()=>updateDoc(doc(db,"diary",currentId),{title:titleInput.value}).then(renderGrid);
-noteInput.oninput=()=>updateDoc(doc(db,"diary",currentId),{note:noteInput.value});
+titleInput.oninput = () => {
+  if(!currentId) return;
+  updateDoc(doc(db,"diary",currentId),{
+    title:titleInput.value
+  }).then(renderGrid);
+};
+
+noteInput.oninput = () => {
+  if(!currentId) return;
+  updateDoc(doc(db,"diary",currentId),{
+    note:noteInput.value
+  });
+};
+
 
 /* ===== UPLOAD ===== */
 imageInput.onchange=async()=>{
@@ -253,7 +287,10 @@ imageInput.onchange=async()=>{
 };
 
 backBtn.onclick=()=>{
+  backBtn.onclick=()=>{
   detail.classList.remove("active");
+  grid.style.opacity=1;   // ⭐ TRẢ UI
+};
 };
 
 renderGrid();

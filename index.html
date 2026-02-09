@@ -167,141 +167,101 @@ input[type="file"]{
 
 </div>
 
-<script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
+<script>
+const grid = document.getElementById("grid")
+const detail = document.getElementById("detail")
+const titleInput = document.getElementById("titleInput")
+const noteInput = document.getElementById("noteInput")
+const imageInput = document.getElementById("imageInput")
+const imagesBox = document.getElementById("images")
+const backBtn = document.querySelector(".back")
 
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-        apiKey: "AIzaSyDGWdRCOq0bhO-NfJM-gTnd_M-WTas3Ym8",
-        authDomain: "lovechip-14-2.firebaseapp.com",
-        projectId: "lovechip-14-2",
-        storageBucket: "lovechip-14-2.firebasestorage.app",
-        messagingSenderId: "78998414674",
-        appId: "1:78998414674:web:a2ad10d0f165e1341bc68b",
-        measurementId: "G-64YWE2ZQ14"
-    };
+let data = JSON.parse(localStorage.getItem("diary-chip")) || []
+let currentId = null
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
+function save(){
+  localStorage.setItem("diary-chip",JSON.stringify(data))
+}
 
-  /* ====== DIARY LOGIC ====== */
+function renderGrid(){
+  grid.innerHTML=""
 
-  const grid = document.getElementById("grid");
-  const detail = document.getElementById("detail");
-  const titleInput = document.getElementById("titleInput");
-  const noteInput = document.getElementById("noteInput");
-  const imageInput = document.getElementById("imageInput");
-  const imagesBox = document.getElementById("images");
-  const backBtn = document.querySelector(".back");
+  data.forEach(card=>{
+    const div=document.createElement("div")
+    div.className="card"
+    div.textContent=card.title
+    div.onclick=()=>openDetail(card.id)
+    grid.appendChild(div)
+  })
 
-  let currentId = null;
+  const add=document.createElement("div")
+  add.className="card add"
+  add.textContent="+"
+  add.onclick=createCard
+  grid.appendChild(add)
+}
 
-  // LOAD CARDS
-  async function renderGrid() {
-    grid.innerHTML = "";
+function createCard(){
+  const id=Date.now()
+  data.push({id,title:"New Note",note:"",images:[]})
+  save()
+  renderGrid()
+}
 
-    const snap = await getDocs(collection(db, "diary"));
+function openDetail(id){
+  currentId=id
+  const card=data.find(c=>c.id===id)
 
-    snap.forEach(docSnap => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerText = docSnap.data().title || "No title";
-      card.onclick = () => openDetail(docSnap.id);
-      grid.appendChild(card);
-    });
+  titleInput.value=card.title
+  noteInput.value=card.note
+  renderImages(card.images)
 
-    const add = document.createElement("div");
-    add.className = "card add";
-    add.innerText = "+";
-    add.onclick = createCard;
-    grid.appendChild(add);
-  }
+  grid.style.opacity=0
+  detail.classList.add("active")
+}
 
-  // CREATE CARD
-  async function createCard() {
-    await addDoc(collection(db, "diary"), {
-      title: "New Note",
-      note: "",
-      images: [],
-      createdAt: serverTimestamp()
-    });
-    renderGrid();
-  }
+function renderImages(list){
+  imagesBox.innerHTML=""
+  list.forEach(src=>{
+    const img=document.createElement("img")
+    img.src=src
+    imagesBox.appendChild(img)
+  })
+}
 
-  // OPEN DETAIL
-  async function openDetail(id) {
-    currentId = id;
-    const snap = await getDoc(doc(db, "diary", id));
-    const data = snap.data();
+titleInput.oninput=()=>{
+  const card=data.find(c=>c.id===currentId)
+  card.title=titleInput.value
+  save()
+  renderGrid()
+}
 
-    titleInput.value = data.title;
-    noteInput.value = data.note;
-    renderImages(data.images || []);
+noteInput.oninput=()=>{
+  const card=data.find(c=>c.id===currentId)
+  card.note=noteInput.value
+  save()
+}
 
-    grid.style.opacity = 0;
-    detail.classList.add("active");
-  }
-
-  function renderImages(list) {
-    imagesBox.innerHTML = "";
-    list.forEach(src => {
-      const img = document.createElement("img");
-      img.src = src;
-      imagesBox.appendChild(img);
-    });
-  }
-
-  // UPDATE TITLE
-  titleInput.oninput = async () => {
-    await updateDoc(doc(db, "diary", currentId), {
-      title: titleInput.value
-    });
-    renderGrid();
-  };
-
-  // UPDATE NOTE
-  noteInput.oninput = async () => {
-    await updateDoc(doc(db, "diary", currentId), {
-      note: noteInput.value
-    });
-  };
-
-  // UPLOAD IMAGE
-  imageInput.onchange = async () => {
-    const files = Array.from(imageInput.files);
-    const urls = [];
-
-    for (let file of files) {
-      const imgRef = ref(storage, `images/${currentId}/${Date.now()}_${file.name}`);
-      await uploadBytes(imgRef, file);
-      const url = await getDownloadURL(imgRef);
-      urls.push(url);
+imageInput.onchange=()=>{
+  const card=data.find(c=>c.id===currentId)
+  Array.from(imageInput.files).forEach(file=>{
+    const reader=new FileReader()
+    reader.onload=e=>{
+      card.images.push(e.target.result)
+      save()
+      renderImages(card.images)
     }
+    reader.readAsDataURL(file)
+  })
+  imageInput.value=""
+}
 
-    const snap = await getDoc(doc(db, "diary", currentId));
-    const oldImages = snap.data().images || [];
+backBtn.onclick=()=>{
+  detail.classList.remove("active")
+  grid.style.opacity=1
+}
 
-    await updateDoc(doc(db, "diary", currentId), {
-      images: [...oldImages, ...urls]
-    });
-
-    renderImages([...oldImages, ...urls]);
-    imageInput.value = "";
-  };
-
-  backBtn.onclick = () => {
-    detail.classList.remove("active");
-    grid.style.opacity = 1;
-  };
-
-  renderGrid();
+renderGrid()
 </script>
-
 </body>
 </html>
