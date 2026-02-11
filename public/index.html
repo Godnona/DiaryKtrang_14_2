@@ -2,47 +2,48 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Diary For Khánh Trang</title>
 <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   background:#ffe6f0;
   font-family:'Patrick Hand', cursive;
 }
 
-.app{width:100vw;height:100vh;position:relative;overflow:hidden;}
-.header{padding:20px 32px;font-size:36px;color:#ff4d94;}
+.app{
+  min-height:100vh;
+  position:relative;
+}
+
+/* ===== HEADER ===== */
+
+.header{
+  padding:24px 24px 6px 24px;
+  font-size:34px;
+  color:#ff4d94;
+}
 
 .un-header{
-  padding:0 32px 20px 32px; /* giống header */
-  font-size:20px;
+  padding:0 24px 20px 24px;
+  font-size:18px;
   color:#ff85b3;
-  margin-top:-10px;
-  letter-spacing:1px;
   font-style:italic;
+  opacity:.9;
 }
 
-.un-header::before,
-.un-header::after{
-  content:"";
-  position:absolute;
-  top:50%;
-  width:30%;
-  height:1px;
-  background:#ffcce6;
-}
-
-.un-header::before{left:0;}
-.un-header::after{right:0;}
+/* ===== GRID ===== */
 
 .grid{
-  padding:0 32px 32px;
+  padding:0 24px 30px;
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-  gap:24px;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:20px;
 }
 
 .card{
@@ -53,87 +54,188 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
+  text-align:center;
+  padding:10px;
   font-size:18px;
   cursor:pointer;
   transition:.25s;
-  text-align:center;
-  padding:10px;
   position:relative;
 }
-.card:hover{transform:translateY(-6px)}
-.card.add{font-size:40px;color:#ff4d94;}
 
+.card:hover{
+  transform:translateY(-5px);
+}
+
+.card.add{
+  font-size:40px;
+  color:#ff4d94;
+}
+
+/* delete icon */
 .delete-btn{
   position:absolute;
-  top:8px;left:8px;
-  background:#ff4d94;color:white;
-  border:none;width:26px;height:26px;
-  border-radius:50%;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;transition:.2s;
+  top:8px;
+  left:8px;
+  background:#ff4d94;
+  color:white;
+  border:none;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  opacity:0;
+  transition:.2s;
 }
-.card:hover .delete-btn{opacity:1;}
+
+.card:hover .delete-btn{
+  opacity:1;
+}
+
+/* ===== DETAIL VIEW ===== */
 
 .detail{
-  position:absolute;inset:0;background:#fff;
-  padding:32px;opacity:0;transform:scale(.92);
-  pointer-events:none;transition:.4s;
+  position:fixed;
+  inset:0;
+  background:white;
+  padding:24px;
+  opacity:0;
+  transform:scale(.95);
+  pointer-events:none;
+  transition:.3s;
+  overflow-y:auto;
 }
-.detail.active{opacity:1;transform:scale(1);pointer-events:auto;}
 
-.top-actions{display:flex;gap:16px;margin-bottom:20px;}
-.back,.delete-text{
-  background:none;border:none;
-  font-size:20px;color:#ff4d94;cursor:pointer;
+.detail.active{
+  opacity:1;
+  transform:scale(1);
+  pointer-events:auto;
 }
+
+.top-actions{
+  display:flex;
+  gap:20px;
+  margin-bottom:20px;
+}
+
+.back,
+.delete-text{
+  background:none;
+  border:none;
+  font-size:20px;
+  cursor:pointer;
+}
+
+.back{color:#ff4d94;}
 .delete-text{color:#ff1a75;}
 
-input,textarea{
-  width:100%;padding:12px;border-radius:12px;
-  border:2px solid #ffd1e8;font-family:inherit;
-  font-size:18px;margin-bottom:20px;
+h2{
+  margin:10px 0 8px;
 }
-textarea{min-height:150px;resize:none;}
+
+input, textarea{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:2px solid #ffd1e8;
+  font-family:inherit;
+  font-size:28px;
+  margin-bottom:20px;
+}
+
+textarea{
+  min-height:260px;
+  resize:none;
+  overflow:hidden;
+}
 
 .save-btn{
-  padding:12px 24px;border:none;
-  border-radius:999px;background:#ff4d94;
-  color:white;font-size:18px;cursor:pointer;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:999px;
+  background:#ff4d94;
+  color:white;
+  font-size:18px;
+  cursor:pointer;
 }
 
-/* Popup */
+/* ===== MODAL ===== */
+
 .modal{
-  position:fixed;inset:0;
+  position:fixed;
+  inset:0;
   background:rgba(0,0,0,.4);
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;pointer-events:none;transition:.3s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
 }
-.modal.active{opacity:1;pointer-events:auto;}
+
+.modal.active{
+  opacity:1;
+  pointer-events:auto;
+}
 
 .modal-box{
-  background:white;padding:30px;
-  border-radius:20px;width:300px;
-  text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.2);
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  width:85%;
+  max-width:320px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.2);
 }
+
 .modal-buttons{
-  display:flex;justify-content:center;
-  gap:12px;margin-top:20px;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin-top:20px;
+  flex-wrap:wrap;
 }
+
 .modal-buttons button{
-  padding:8px 16px;border:none;
-  border-radius:999px;cursor:pointer;
+  padding:10px 16px;
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
   font-family:inherit;
 }
+
 .btn-primary{background:#ff4d94;color:white;}
 .btn-secondary{background:#ddd;}
 .btn-danger{background:#ff1a75;color:white;}
+
+/* ===== MOBILE OPTIMIZE ===== */
+
+@media (max-width:768px){
+
+  .header{font-size:26px;}
+  .un-header{font-size:16px;}
+
+  .grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+  }
+
+  .card{
+    height:150px;
+    font-size:16px;
+  }
+}
 </style>
 </head>
 
 <body>
 <div class="app">
   <div class="header">📖 Diary For Khánh Trang</div>
-  <div class="un-header">📖 Nơi lưu giữ những dòng kỉ niệm hai ta</div>
+  <div class="un-header">Nơi lưu giữ những dòng kỉ niệm hai ta</div>
+
   <div class="grid" id="grid"></div>
 
   <div class="detail" id="detail">
@@ -152,7 +254,6 @@ textarea{min-height:150px;resize:none;}
   </div>
 </div>
 
-<!-- Custom Modal -->
 <div class="modal" id="modal">
   <div class="modal-box">
     <div id="modalMessage"></div>
@@ -162,16 +263,15 @@ textarea{min-height:150px;resize:none;}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import {
-  getFirestore,collection,addDoc,doc,
-  updateDoc,deleteDoc,onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore,collection,addDoc,doc,updateDoc,deleteDoc,onSnapshot }
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig={
   apiKey:"YOUR_KEY",
   authDomain:"lovechip-14-2.firebaseapp.com",
   projectId:"lovechip-14-2",
 };
+
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 const notesRef=collection(db,"notes");
@@ -191,7 +291,6 @@ const modalButtons=document.getElementById("modalButtons");
 let currentId=null;
 let originalTitle="",originalContent="";
 
-/* -------- Modal Function -------- */
 function showModal(message,buttons){
   modalMessage.textContent=message;
   modalButtons.innerHTML="";
@@ -205,7 +304,6 @@ function showModal(message,buttons){
   modal.classList.add("active");
 }
 
-/* -------- Realtime Load -------- */
 onSnapshot(notesRef,snapshot=>{
   grid.innerHTML="";
   snapshot.forEach(docSnap=>{
@@ -229,11 +327,13 @@ onSnapshot(notesRef,snapshot=>{
     div.onclick=()=>{
       currentId=docSnap.id;
       titleInput.value=data.title||"";
+      setTimeout(()=>autoResize(noteInput),0);
       noteInput.value=data.content||"";
       originalTitle=titleInput.value;
       originalContent=noteInput.value;
       openDetail();
     };
+
     grid.appendChild(div);
   });
 
@@ -244,7 +344,6 @@ onSnapshot(notesRef,snapshot=>{
   grid.appendChild(add);
 });
 
-/* -------- Functions -------- */
 async function createNote(){
   const docRef=await addDoc(notesRef,{title:"New Note",content:""});
   currentId=docRef.id;
@@ -299,14 +398,23 @@ backBtn.onclick=()=>{
 };
 
 function openDetail(){
-  grid.style.opacity=0;
+  grid.style.display="none";
   detail.classList.add("active");
 }
 
 function closeDetail(){
   detail.classList.remove("active");
-  grid.style.opacity=1;
+  grid.style.display="grid";
 }
+
+function autoResize(textarea){
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
+}
+
+noteInput.addEventListener("input", () => {
+  autoResize(noteInput);
+});
 
 saveBtn.onclick=saveNote;
 </script>
