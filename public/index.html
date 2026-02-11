@@ -2,8 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Diary của Chíp</title>
-
+<title>Diary For Khánh Trang</title>
 <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
 
 <style>
@@ -14,29 +13,36 @@ body{
   font-family:'Patrick Hand', cursive;
 }
 
-.app{
-  width:100vw;
-  min-height:100vh;
-  position:relative;
+.app{width:100vw;height:100vh;position:relative;overflow:hidden;}
+.header{padding:20px 32px;font-size:36px;color:#ff4d94;}
+
+.un-header{
+  padding:0 32px 20px 32px; /* giống header */
+  font-size:20px;
+  color:#ff85b3;
+  margin-top:-10px;
+  letter-spacing:1px;
+  font-style:italic;
 }
 
-/* HEADER */
-.header{
-  padding:20px 32px;
-  font-size:36px;
-  color:#ff4d94;
+.un-header::before,
+.un-header::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  width:30%;
+  height:1px;
+  background:#ffcce6;
 }
 
-/* GRID */
+.un-header::before{left:0;}
+.un-header::after{right:0;}
+
 .grid{
   padding:0 32px 32px;
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
   gap:24px;
-  transition:.4s;
-
-  /* FIX */
-  min-height: calc(100vh - 120px);
 }
 
 .card{
@@ -47,253 +53,262 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:22px;
+  font-size:18px;
   cursor:pointer;
   transition:.25s;
+  text-align:center;
+  padding:10px;
+  position:relative;
 }
 .card:hover{transform:translateY(-6px)}
+.card.add{font-size:40px;color:#ff4d94;}
 
-.card.add{
-  font-size:48px;
-  color:#ff4d94;
-}
-
-/* DETAIL */
-.detail{
+.delete-btn{
   position:absolute;
-  inset:0;
-  background:#fff;
-  padding:32px;
-  opacity:0;
-  pointer-events:none;
-  transform:scale(.95);
-  transition:.3s;
+  top:8px;left:8px;
+  background:#ff4d94;color:white;
+  border:none;width:26px;height:26px;
+  border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:.2s;
 }
-.detail.active{
-  opacity:1;
-  pointer-events:auto;
-  transform:scale(1);
-}
+.card:hover .delete-btn{opacity:1;}
 
-.back{
-  background:none;
-  border:none;
-  font-size:22px;
-  color:#ff4d94;
-  cursor:pointer;
+.detail{
+  position:absolute;inset:0;background:#fff;
+  padding:32px;opacity:0;transform:scale(.92);
+  pointer-events:none;transition:.4s;
 }
+.detail.active{opacity:1;transform:scale(1);pointer-events:auto;}
 
-/* FORM */
+.top-actions{display:flex;gap:16px;margin-bottom:20px;}
+.back,.delete-text{
+  background:none;border:none;
+  font-size:20px;color:#ff4d94;cursor:pointer;
+}
+.delete-text{color:#ff1a75;}
+
 input,textarea{
-  width:100%;
-  padding:12px;
-  border-radius:12px;
-  border:2px solid #ffd1e8;
+  width:100%;padding:12px;border-radius:12px;
+  border:2px solid #ffd1e8;font-family:inherit;
+  font-size:18px;margin-bottom:20px;
+}
+textarea{min-height:150px;resize:none;}
+
+.save-btn{
+  padding:12px 24px;border:none;
+  border-radius:999px;background:#ff4d94;
+  color:white;font-size:18px;cursor:pointer;
+}
+
+/* Popup */
+.modal{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.4);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:.3s;
+}
+.modal.active{opacity:1;pointer-events:auto;}
+
+.modal-box{
+  background:white;padding:30px;
+  border-radius:20px;width:300px;
+  text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+.modal-buttons{
+  display:flex;justify-content:center;
+  gap:12px;margin-top:20px;
+}
+.modal-buttons button{
+  padding:8px 16px;border:none;
+  border-radius:999px;cursor:pointer;
   font-family:inherit;
-  font-size:18px;
 }
-
-textarea{min-height:100px;resize:none}
-
-/* IMAGES */
-.images{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-top:12px;
-}
-.images img{
-  width:100px;
-  height:100px;
-  object-fit:cover;
-  border-radius:14px;
-  box-shadow:0 5px 15px rgba(0,0,0,.15);
-}
-
-/* UPLOAD */
-.upload-btn{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 18px;
-  border-radius:999px;
-  background:#ff4d94;
-  color:white;
-  font-size:18px;
-  cursor:pointer;
-  margin-top:8px;
-}
-.upload-btn:hover{background:#ff2f84}
-
-input[type="file"]{display:none}
+.btn-primary{background:#ff4d94;color:white;}
+.btn-secondary{background:#ddd;}
+.btn-danger{background:#ff1a75;color:white;}
 </style>
 </head>
 
 <body>
 <div class="app">
-
-  <div class="header">📖 Diary của Chíp</div>
-
+  <div class="header">📖 Diary For Khánh Trang</div>
+  <div class="un-header">📖 Nơi lưu giữ những dòng kỉ niệm hai ta</div>
   <div class="grid" id="grid"></div>
 
   <div class="detail" id="detail">
-    <button class="back">← Back</button>
+    <div class="top-actions">
+      <button class="back">← Back</button>
+      <button class="delete-text" id="deleteDetailBtn">Delete</button>
+    </div>
 
-    <h2>Tiêu đề</h2>
+    <h2>Title</h2>
     <input id="titleInput">
 
-    <h2>Note</h2>
+    <h2>Nội dung</h2>
     <textarea id="noteInput"></textarea>
 
-    <h2>Ảnh</h2>
-    <label class="upload-btn">
-      📷 Thêm ảnh
-      <input type="file" id="imageInput" accept="image/*" multiple>
-    </label>
-
-    <div class="images" id="images"></div>
+    <button class="save-btn" id="saveBtn">💾 Save</button>
   </div>
+</div>
 
+<!-- Custom Modal -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div id="modalMessage"></div>
+    <div class="modal-buttons" id="modalButtons"></div>
+  </div>
 </div>
 
 <script type="module">
-/* ===== FIREBASE IMPORT ===== */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, getDocs,
-  getDoc, updateDoc, doc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-import {
-  getStorage, ref, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-storage.js";
+  getFirestore,collection,addDoc,doc,
+  updateDoc,deleteDoc,onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-/* ===== FIREBASE CONFIG ===== */
-const firebaseConfig = {
-  apiKey: "AIzaSyDGWdRCOq0bhO-NfJM-gTnd_M-WTas3Ym8",
-  authDomain: "lovechip-14-2.firebaseapp.com",
-  projectId: "lovechip-14-2",
-  storageBucket: "lovechip-14-2.appspot.com",
-  messagingSenderId: "78998414674",
-  appId: "1:78998414674:web:a2ad10d0f165e1341bc68b"
+const firebaseConfig={
+  apiKey:"YOUR_KEY",
+  authDomain:"lovechip-14-2.firebaseapp.com",
+  projectId:"lovechip-14-2",
 };
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const notesRef=collection(db,"notes");
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
+const grid=document.getElementById("grid");
+const detail=document.getElementById("detail");
+const titleInput=document.getElementById("titleInput");
+const noteInput=document.getElementById("noteInput");
+const backBtn=document.querySelector(".back");
+const saveBtn=document.getElementById("saveBtn");
+const deleteDetailBtn=document.getElementById("deleteDetailBtn");
 
-/* ===== UI ===== */
-const grid = document.getElementById("grid");
-const detail = document.getElementById("detail");
-const titleInput = document.getElementById("titleInput");
-const noteInput = document.getElementById("noteInput");
-const imageInput = document.getElementById("imageInput");
-const imagesBox = document.getElementById("images");
-const backBtn = document.querySelector(".back");
+const modal=document.getElementById("modal");
+const modalMessage=document.getElementById("modalMessage");
+const modalButtons=document.getElementById("modalButtons");
 
-let currentId = null;
+let currentId=null;
+let originalTitle="",originalContent="";
 
-async function createCard(){
-  const docRef=await addDoc(collection(db,"diary"),{
-    title:"New Note",
-    note:"",
-    images:[],
-    createdAt:serverTimestamp()
+/* -------- Modal Function -------- */
+function showModal(message,buttons){
+  modalMessage.textContent=message;
+  modalButtons.innerHTML="";
+  buttons.forEach(btn=>{
+    const b=document.createElement("button");
+    b.textContent=btn.text;
+    b.className=btn.class;
+    b.onclick=()=>{modal.classList.remove("active");btn.onClick();}
+    modalButtons.appendChild(b);
   });
-
-  renderGrid();
-  openDetail(docRef.id);
+  modal.classList.add("active");
 }
 
-
-/* ===== LOAD GRID ===== */
-async function renderGrid(){
+/* -------- Realtime Load -------- */
+onSnapshot(notesRef,snapshot=>{
   grid.innerHTML="";
+  snapshot.forEach(docSnap=>{
+    const data=docSnap.data();
+    const div=document.createElement("div");
+    div.className="card";
+    div.textContent=data.title||"No Title";
 
-  const snap = await getDocs(collection(db,"diary"));
+    const del=document.createElement("button");
+    del.className="delete-btn";
+    del.textContent="×";
+    del.onclick=(e)=>{
+      e.stopPropagation();
+      showModal("Xoá ghi chú này?",[
+        {text:"Huỷ",class:"btn-secondary",onClick:()=>{}},
+        {text:"Xoá",class:"btn-danger",onClick:()=>deleteDoc(doc(db,"notes",docSnap.id))}
+      ]);
+    };
+    div.appendChild(del);
 
-  snap.forEach(docSnap=>{
-    const card=document.createElement("div");
-    card.className="card";
-    card.textContent=docSnap.data().title || "No title";
-    card.onclick=()=>openDetail(docSnap.id);
-    grid.appendChild(card);
+    div.onclick=()=>{
+      currentId=docSnap.id;
+      titleInput.value=data.title||"";
+      noteInput.value=data.content||"";
+      originalTitle=titleInput.value;
+      originalContent=noteInput.value;
+      openDetail();
+    };
+    grid.appendChild(div);
   });
 
   const add=document.createElement("div");
   add.className="card add";
   add.textContent="+";
-  add.onclick=createCard;
+  add.onclick=createNote;
   grid.appendChild(add);
+});
+
+/* -------- Functions -------- */
+async function createNote(){
+  const docRef=await addDoc(notesRef,{title:"New Note",content:""});
+  currentId=docRef.id;
+  titleInput.value="New Note";
+  noteInput.value="";
+  originalTitle="New Note";
+  originalContent="";
+  openDetail();
 }
 
-async function openDetail(id){
-  currentId=id;
-
-  const snap=await getDoc(doc(db,"diary",id));
-  const data=snap.data();
-
-  titleInput.value=data.title || "";
-  noteInput.value=data.note || "";
-  renderImages(data.images || []);
-
-  grid.style.opacity=0;      // ⭐ QUAN TRỌNG
-  detail.classList.add("active");
-}
-
-
-/* ===== IMAGES ===== */
-function renderImages(list){
-  imagesBox.innerHTML="";
-  list.forEach(src=>{
-    const img=document.createElement("img");
-    img.src=src;
-    imagesBox.appendChild(img);
-  });
-}
-
-/* ===== UPDATE ===== */
-titleInput.oninput = () => {
+async function saveNote(){
   if(!currentId) return;
-  updateDoc(doc(db,"diary",currentId),{
-    title:titleInput.value
-  }).then(renderGrid);
-};
-
-noteInput.oninput = () => {
-  if(!currentId) return;
-  updateDoc(doc(db,"diary",currentId),{
-    note:noteInput.value
+  await updateDoc(doc(db,"notes",currentId),{
+    title:titleInput.value,
+    content:noteInput.value
   });
-};
+  originalTitle=titleInput.value;
+  originalContent=noteInput.value;
+  showModal("Đã lưu thành công 🎉",[
+    {text:"OK",class:"btn-primary",onClick:()=>{}}
+  ]);
+}
 
-
-/* ===== UPLOAD ===== */
-imageInput.onchange=async()=>{
-  const files=[...imageInput.files];
-  const urls=[];
-
-  for(const f of files){
-    const r=ref(storage,`images/${currentId}/${Date.now()}_${f.name}`);
-    await uploadBytes(r,f);
-    urls.push(await getDownloadURL(r));
-  }
-
-  const snap=await getDoc(doc(db,"diary",currentId));
-  const old=snap.data().images||[];
-
-  await updateDoc(doc(db,"diary",currentId),{images:[...old,...urls]});
-  renderImages([...old,...urls]);
-  imageInput.value="";
+deleteDetailBtn.onclick=()=>{
+  if(!currentId) return;
+  showModal("Xoá ghi chú này?",[
+    {text:"Huỷ",class:"btn-secondary",onClick:()=>{}},
+    {text:"Xoá",class:"btn-danger",onClick:async ()=>{
+      await deleteDoc(doc(db,"notes",currentId));
+      closeDetail();
+    }}
+  ]);
 };
 
 backBtn.onclick=()=>{
-  backBtn.onclick=()=>{
-  detail.classList.remove("active");
-  grid.style.opacity=1;   // ⭐ TRẢ UI
-};
+  const changed=
+    titleInput.value!==originalTitle ||
+    noteInput.value!==originalContent;
+
+  if(changed){
+    showModal("Bạn có muốn lưu thay đổi không?",[
+      {text:"Huỷ",class:"btn-secondary",onClick:()=>{}},
+      {text:"Không lưu",class:"btn-danger",onClick:closeDetail},
+      {text:"Lưu",class:"btn-primary",onClick:async ()=>{
+        await saveNote();
+        closeDetail();
+      }}
+    ]);
+  }else{
+    closeDetail();
+  }
 };
 
-renderGrid();
+function openDetail(){
+  grid.style.opacity=0;
+  detail.classList.add("active");
+}
+
+function closeDetail(){
+  detail.classList.remove("active");
+  grid.style.opacity=1;
+}
+
+saveBtn.onclick=saveNote;
 </script>
 </body>
 </html>
